@@ -1,0 +1,36 @@
+hoax_detection/
+│
+├── data_collection/
+│   ├── reddit_collector.py
+│   ├── twitter_collector.py
+│   └── facebook_instagram_collector.py
+│
+├── content_analysis/
+│   ├── text_preprocessing.py
+│   ├── hoax_detection_model.py
+│   └── topic_modeling.py
+│
+├── network_analysis/
+│   ├── build_user_network.py
+│   ├── detect_communities.py
+│   └── correlate_temporally.py
+│
+├── sentiment_analysis/
+│   └── sentiment_module.py
+│
+├── visualization/
+│   ├── network_viz.py
+│   └── timeline_viz.py
+│
+├── utils/
+│   ├── config.py
+│   └── helpers.py
+│
+├── datasets/
+│   └── (downloaded datasets go here)
+│
+├── notebooks/
+│   └── exploration_notebook.ipynb
+│
+└── main.py
+
