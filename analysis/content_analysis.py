@@ -60,8 +60,8 @@ def analyse_content(df):
     top_real_words = [(feature_names[i], coefs[i]) for i in top_real_indices]
 
     # Save top hoax words to file
-    os.makedirs("../shared_data", exist_ok=True)
-    with open("../shared_data/top_hoax_keywords.txt", "w") as f:
+    os.makedirs("./shared_data", exist_ok=True)
+    with open("./shared_data/top_hoax_keywords.txt", "w") as f:
         for word, count in top_hoax_words:
             f.write(f"{word}\n")
 

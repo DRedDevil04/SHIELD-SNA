@@ -19,6 +19,8 @@ def analyse_network(df):
 
         if pd.notnull(parent_post_id):
             post_author = post_author_map.get(parent_post_id)
+            if post_author is None:
+                continue 
             if post_author and post_author != commenter:
                 G.add_edge(commenter, post_author, relation='commented_on')
 
@@ -37,9 +39,9 @@ def analyse_network(df):
     nx.set_node_attributes(G, betweenness_centrality, "betweenness_centrality")
 
     # Save data
-    os.makedirs("../shared_data", exist_ok=True)
+    os.makedirs("./shared_data", exist_ok=True)
 
-    nx.write_gml(G, "../shared_data/network.gml")
+    nx.write_gml(G, "./shared_data/network.gml")
 
     centrality_df = pd.DataFrame({
         "user": list(degree_centrality.keys()),
@@ -47,10 +49,10 @@ def analyse_network(df):
         "betweenness_centrality": list(betweenness_centrality.values()),
         "community": [partition.get(u) for u in degree_centrality.keys()]
     })
-    centrality_df.to_csv("../shared_data/centrality_scores.csv", index=False)
+    centrality_df.to_csv("./shared_data/centrality_scores.csv", index=False)
 
     community_df = pd.DataFrame(partition.items(), columns=["user", "community"])
-    community_df.to_csv("../shared_data/communities.csv", index=False)
+    community_df.to_csv("./shared_data/communities.csv", index=False)
 
     # --- 🌐 Network Graph (simplified for Dash) ---
     pos = nx.spring_layout(G, seed=42)

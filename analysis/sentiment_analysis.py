@@ -40,7 +40,7 @@ def analyse_sentiment(df=None, show_plot=False):
     df['sentiment_category'] = df['vader_sentiment'].apply(label_sentiment)
 
     # Threat keyword detection
-    threat_keywords_path = "../shared_data/top_hoax_keywords.txt"
+    threat_keywords_path = "./shared_data/top_hoax_keywords.txt"
     threat_keywords = []
     if os.path.exists(threat_keywords_path):
         with open(threat_keywords_path, "r") as f:
@@ -75,11 +75,11 @@ def analyse_sentiment(df=None, show_plot=False):
         plt.close(fig)
 
     # Save results
-    os.makedirs("../shared_data", exist_ok=True)
-    df.to_csv("../shared_data/sentiment_analysis.csv", index=False)
-    hoax_threats.to_csv("../shared_data/hoax_threats.csv", index=False)
+    os.makedirs("./shared_data", exist_ok=True)
+    df.to_csv("./shared_data/sentiment_analysis.csv", index=False)
+    hoax_threats.to_csv("./shared_data/hoax_threats.csv", index=False)
 
-    print("✅ Sentiment and threat analysis saved to ../shared_data/")
+    print("✅ Sentiment and threat analysis saved to ./shared_data/")
 
     return {
         "full_df": df,
