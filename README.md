@@ -1,8 +1,3 @@
-Sure! Here's the finalized Markdown-formatted README that you can copy and paste directly:
-
-markdown
-Copy
-Edit
 # 🛡 S.H.I.E.L.D. – Social Hoax Identification & Event Linkage Dashboard
 
 ## 📌 Overview
@@ -19,16 +14,12 @@ cd SHIELD-SNA
 ```
 ### ✅ 2. Install Dependencies
 ```bash
-Copy
-Edit
 pip install -r requirements.txt
 ```
 ### ✅ 3. Configure Reddit API
 Create a Reddit App at https://www.reddit.com/prefs/apps and add credentials to a .env file:
 
 ```ini
-Copy
-Edit
 REDDIT_CLIENT_ID=your_client_id
 REDDIT_CLIENT_SECRET=your_client_secret
 ```
@@ -37,24 +28,18 @@ REDDIT_CLIENT_SECRET=your_client_secret
 Run the notebook to extract Reddit posts:
 
 ```bash
-Copy
-Edit
 reddit_collect.ipynb
 ```
 #### 🏗 Step 2: Data Construction
 Structure and preprocess the collected data:
 
 ```bash
-Copy
-Edit
 construct_data.ipynb
 ```
 #### 🚀 Step 3: Launch the Dashboard
 Run the full analytical dashboard:
 
 ```bash
-Copy
-Edit
 python3 app2.py
 ```
 ### 🧠 Features
@@ -80,20 +65,20 @@ python3 app2.py
 | **Network Analysis** | NetworkX, Plotly                         |
 | **Dashboard**        | Dash, Matplotlib, Seaborn                |
 
-📦 Output
-✅ Hoax Classification Report
+### 📦 Output
+#### ✅ Hoax Classification Report
 
-✅ User Interaction Graph
+#### ✅ User Interaction Graph
 
-✅ Sentiment Trend Analysis
+#### ✅ Sentiment Trend Analysis
 
-✅ Temporal Event Correlation
+#### ✅ Temporal Event Correlation
 
-✅ Threat Level Insights
+#### ✅ Threat Level Insights
 
-🤝 Contributors
-Devam Desai
+### 🤝 Contributors
+#### Nitu Sherawat
 
-Nitu Sherawat
+#### Devam Desai
 
-Samar Borkar
+#### Samar Borkar
