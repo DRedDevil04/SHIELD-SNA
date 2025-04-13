@@ -6,7 +6,7 @@ import os
 
 def run_network_analysis():
     # Load dataset
-    df = pd.read_csv("/home/nitu/Programs/sem6/SNA/SHIELD-SNA/datasets/fetched_network_data.csv", sep=',')
+    df = pd.read_csv("../datasets/fetched_network_data.csv", sep=',')
     print(df['subreddit'].value_counts())
     df = df.dropna(subset=['author', 'id'])
 

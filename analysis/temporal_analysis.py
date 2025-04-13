@@ -38,4 +38,4 @@ def plot_hoax_trends_by_subreddit(file_path, top_n=5):
 
 # Example usage
 if __name__ == "__main__":
-    plot_hoax_trends_by_subreddit("/home/nitu/Programs/sem6/SNA/SHIELD-SNA/datasets/fetched_reddit_content_large.csv")
+    plot_hoax_trends_by_subreddit("../datasets/fetched_network_data.csv")
