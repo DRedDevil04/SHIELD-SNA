@@ -77,8 +77,6 @@ python3 app2.py
 #### ✅ Threat Level Insights
 
 ### 🤝 Contributors
-#### Nitu Sherawat
-
-#### Devam Desai
-
-#### Samar Borkar
+#### _**Devam Desai (IIT2022035)**_
+#### _**Nitu Sherawat (IIT2022073)**_
+#### **_Samar Borkar (IIT2022083)_**
