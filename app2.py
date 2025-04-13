@@ -35,7 +35,7 @@ default_subreddit = df['subreddit'].dropna().unique()[0]
 
 # Layout
 app.layout = html.Div([
-    html.H1("Hoax Campaign Dashboard", style={'textAlign': 'center'}),
+    html.H1("Social Media Integration Dashboard Dashboard", style={'textAlign': 'center'}),
 
     dcc.Tabs([
         dcc.Tab(label="Sentiment Analysis", children=[
