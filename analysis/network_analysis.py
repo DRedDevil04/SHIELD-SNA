@@ -7,7 +7,7 @@ import plotly.graph_objs as go
 
 def analyse_network(df):
     df = df.dropna(subset=['author', 'id'])
-
+    #df = df[df['2_way_label'] == 0]
     # Map post ID to author
     post_author_map = df.set_index('id')['author'].to_dict()
 
