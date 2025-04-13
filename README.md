@@ -1,96 +1,99 @@
-# **S.H.I.E.L.D. – Social Hoax Identification & Event Linkage Dashboard**
+Sure! Here's the finalized Markdown-formatted README that you can copy and paste directly:
+
+markdown
+Copy
+Edit
+# 🛡 S.H.I.E.L.D. – Social Hoax Identification & Event Linkage Dashboard
 
 ## 📌 Overview
-**S.H.I.E.L.D.** (*Social Hoax Identification & Event Linkage Dashboard*) is a **standalone system** designed to automate the detection, analysis, and visualization of social media data related to **hoax call campaigns**. The system uses a combination of **network analysis**, **content analysis**, and **temporal correlation** to map hoax-related communication, assess threats, and visualize the spread of hoaxes on social media platforms like **Reddit**.
+**S.H.I.E.L.D.** (*Social Hoax Identification & Event Linkage Dashboard*) is a standalone system to detect, analyze, and visualize **hoax call campaigns** on Reddit using **NLP**, **network analysis**, **sentiment evaluation**, and **temporal correlation** techniques.
 
-## 🎯 Features
-✅ **Multi-platform Data Collection** – Extracts data from Reddit using **Pushshift.io API** and the **PRAW library**.  
-✅ **Content Analysis Module** – Identifies hoax-related posts using **NLP-based techniques** and **machine learning** algorithms.  
-✅ **User Network Mapping** – Detects coordinated efforts in spreading hoaxes using **network analysis** techniques.  
-✅ **Temporal Correlation Analysis** – Links hoax-related posts to **real-world hoax call events** over time.  
-✅ **Sentiment & Threat Assessment** – Analyzes the sentiment of posts and assesses their potential real-world impact.  
-✅ **Social Network Visualization** – Graphical representation of **how hoax content spreads** across users.  
-✅ **Validation Report** – Provides case studies and insights into real-world hoax incidents.  
+---
 
-## 🛠️ Tech Stack & Dependencies
-### **Programming Language:**
-- **Python 3.9+** – Core development language
+## 🚀 Quickstart Guide
 
-### **Data Collection Tools:**
-- **Pushshift.io API** – Extracts Reddit data
-- **PRAW** – Reddit API Wrapper for live data collection
-
-### **Text Processing & NLP:**
-- **NLTK / SpaCy** – Tokenization, lemmatization, and Named Entity Recognition (NER)
-- **TextBlob / VADER** – Sentiment analysis
-- **Scikit-learn** – Machine learning-based classification and analysis
-
-### **Network & Visualization Tools:**
-- **NetworkX** – Graph-based analysis of user interactions
-- **Plotly** – Interactive network visualizations
-- **Matplotlib / Seaborn** – Data visualization
-- **Gephi** – Standalone network visualization tool
-
-### **Datasets Used:**
-- **Pushshift.io Reddit Dumps** – Archived Reddit data for hoax analysis
-
-## 🔧 Installation & Setup
-### **1️⃣ Clone the Repository:**
+### ✅ 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/SHIELD.git
-cd SHIELD
+git clone https://github.com/DRedDevil04/SHIELD-SNA.git
+cd SHIELD-SNA
 ```
-### **2️⃣ Install Dependencies:**
+### ✅ 2. Install Dependencies
 ```bash
+Copy
+Edit
 pip install -r requirements.txt
 ```
+### ✅ 3. Configure Reddit API
+Create a Reddit App at https://www.reddit.com/prefs/apps and add credentials to a .env file:
 
-### ** 3️⃣ Set Up API Keys**
-```bash
-Reddit API: Create an app at Reddit Developer Portal
-
-Create a .env file and add:
+```ini
+Copy
+Edit
 REDDIT_CLIENT_ID=your_client_id
 REDDIT_CLIENT_SECRET=your_client_secret
 ```
+### 📊 Workflow
+#### 📥 Step 1: Data Collection
+Run the notebook to extract Reddit posts:
 
-### ** 4️⃣ Run the System:**
 ```bash
-python3 app.py
+Copy
+Edit
+reddit_collect.ipynb
 ```
+#### 🏗 Step 2: Data Construction
+Structure and preprocess the collected data:
 
-📌 Workflow
-1️⃣ Data Collection – Extract hoax-related posts from Reddit using Pushshift.io and PRAW.
-2️⃣ Content Analysis – Identifies hoax indicators and misinformation using NLP techniques and machine learning models.
-3️⃣ User Network Mapping – Visualizes coordinated efforts of users spreading hoaxes through network analysis.
-4️⃣ Temporal Analysis – Links social media posts to real-world hoax events using timestamps and event data.
-5️⃣ Sentiment & Threat Analysis – Determines the impact and seriousness of hoax messages.
-6️⃣ Visualization & Reporting – Generates network graphs, temporal correlation plots, and threat assessment reports.
+```bash
+Copy
+Edit
+construct_data.ipynb
+```
+#### 🚀 Step 3: Launch the Dashboard
+Run the full analytical dashboard:
 
-📊 Expected Output
-📌 Hoax Probability Score – Classifies posts as Hoax or Not based on machine learning analysis.
-📌 User Coordination Graph – Visualizes connections between users spreading hoaxes using network graphs.
-📌 Sentiment Analysis Chart – Displays trends of positive, neutral, and negative sentiments in posts.
-📌 Temporal Correlation Plot – Links hoax posts with real-world event timelines.
-📌 Threat Assessment Report – Evaluates if a hoax could lead to real-world harm or disruptions.
+```bash
+Copy
+Edit
+python3 app2.py
+```
+### 🧠 Features
+#### 🕵️‍♂️ Hoax Detection using NLP and ML
 
-🏆 Use Cases
-Law enforcement agencies – Detect and mitigate hoax call campaigns and social media misinformation.
+#### 🌐 Author Network Graphs with Plotly + NetworkX
 
-Social media platforms – Flag and take down hoax-related content.
+#### ⏰ Temporal Correlation with real-world hoax events
 
-Crisis management teams – Quickly identify and respond to false alarm incidents.
+#### 🧠 Sentiment & Threat Analysis
 
-Journalists & Fact-checkers – Analyze trends in social media misinformation and hoaxes.
+#### 📈 Fully Integrated Visualization Dashboard
 
-📄 License
-This project is licensed under the MIT License – see the LICENSE file for details.
+### ⚙️ Tech Stack
+## 🧰 Tech Stack Summary
+
+| **Category**         | **Tools Used**                           |
+|----------------------|-------------------------------------------|
+| **Language**         | Python 3.9+                               |
+| **Data Collection**  | Pushshift API, PRAW                      |
+| **NLP & ML**         | NLTK, SpaCy, Scikit-learn                |
+| **Sentiment**        | TextBlob, VADER                          |
+| **Network Analysis** | NetworkX, Plotly                         |
+| **Dashboard**        | Dash, Matplotlib, Seaborn                |
+
+📦 Output
+✅ Hoax Classification Report
+
+✅ User Interaction Graph
+
+✅ Sentiment Trend Analysis
+
+✅ Temporal Event Correlation
+
+✅ Threat Level Insights
 
 🤝 Contributors
-DEVAM DESAI
-NITU SHERAWAT
-SAMAR BORKAR
+Devam Desai
 
-📬 Contact
-For questions, feedback, or collaborations, reach out at example.com or create an issue on GitHub.
+Nitu Sherawat
 
+Samar Borkar
