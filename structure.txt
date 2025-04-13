@@ -1,36 +1,17 @@
-hoax_detection/
-│
-├── data_collection/
-│   ├── reddit_collector.py
-│   ├── twitter_collector.py
-│   └── facebook_instagram_collector.py
-│
-├── content_analysis/
-│   ├── text_preprocessing.py
-│   ├── hoax_detection_model.py
-│   └── topic_modeling.py
-│
-├── network_analysis/
-│   ├── build_user_network.py
-│   ├── detect_communities.py
-│   └── correlate_temporally.py
-│
-├── sentiment_analysis/
-│   └── sentiment_module.py
-│
-├── visualization/
-│   ├── network_viz.py
-│   └── timeline_viz.py
-│
-├── utils/
-│   ├── config.py
-│   └── helpers.py
-│
+SHIELD-SNA/
+├── analysis/
+│   ├── content_analysis.py         # performs content analysis
+│   └── network_analysis.py         # performs network analysis
+│   └── sentiment_analysis.py       # performs sentiment analysis
+│   └── temporal_analysis.py        # performs temporal analysis
+│   └── temporal_network_analysis.py # displays user network hoax evolution over time   
+├── data_collection
+│   └── reddit_collect.ipynb        # collects data from reddit 
+│   └── construct_data.ipynb        # formats dataset for temporal and network representation 
 ├── datasets/
-│   └── (downloaded datasets go here)
-│
-├── notebooks/
-│   └── exploration_notebook.ipynb
-│
-└── main.py
-
+│   └── [Directory for storing raw and processed datasets]
+├── app2.py                         # Enhanced dashboard with integrated analyses
+├── requirements.txt                # List of project dependencies
+├── README.md                       # Project overview and instructions
+├── structure.txt                   # Text file detailing the project structure
+└── .gitignore                      # Specifies files and directories to be ignored by Git
