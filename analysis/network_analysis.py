@@ -93,22 +93,29 @@ def analyse_network(df):
             size=10,
             colorbar=dict(
                 thickness=15,
-                title='Community',
-                xanchor='left',
-                titleside='right'
+                title=dict(
+                    text='Community',  # The colorbar title text
+                    side='right'  # Corrected 'titleside' to 'side'
+                ),
+                xanchor='left'
             )
         )
     )
 
+
     fig = go.Figure(data=[edge_trace, node_trace],
-                    layout=go.Layout(
-                        title='Reddit Author Network with Community Detection',
-                        titlefont_size=16,
-                        showlegend=False,
-                        hovermode='closest',
-                        margin=dict(b=20, l=5, r=5, t=40),
-                        xaxis=dict(showgrid=False, zeroline=False),
-                        yaxis=dict(showgrid=False, zeroline=False)
-                    ))
+                layout=go.Layout(
+                    title=dict(
+                        text='Reddit Author Network with Community Detection',  # Title text
+                        font=dict(size=16)  # Font size for the title
+                    ),
+                    showlegend=False,
+                    hovermode='closest',
+                    margin=dict(b=20, l=5, r=5, t=40),
+                    xaxis=dict(showgrid=False, zeroline=False),
+                    yaxis=dict(showgrid=False, zeroline=False)
+                ))
+
+
 
     return fig
