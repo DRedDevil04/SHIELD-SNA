@@ -6,7 +6,8 @@ import os
 
 def run_network_analysis():
     # Load dataset
-    df = pd.read_csv("../datasets/fetched_reddit_content_large.csv")
+    df = pd.read_csv("/home/nitu/Programs/sem6/SNA/SHIELD-SNA/datasets/fetched_network_data.csv", sep=',')
+    print(df['subreddit'].value_counts())
     df = df.dropna(subset=['author', 'id'])
 
     # Map post ID to author
@@ -73,15 +74,25 @@ def run_network_analysis():
 
     print("✅ Network graph and analysis saved to ../shared_data/")
 
-    # --- Optional Visualization ---
-    sub_nodes = list(G.nodes)[:50]
-    subG = G.subgraph(sub_nodes)
-    pos = nx.spring_layout(subG)
-    colors = [partition.get(node, 0) for node in subG.nodes()]
+    # --- 🌐 Full Graph Community Visualization ---
+    print("📊 Generating full community graph...")
 
-    plt.figure(figsize=(14, 10))
-    nx.draw(subG, pos, with_labels=True, node_size=800, node_color=colors, cmap=plt.cm.Set3, font_size=8, edge_color='gray')
-    plt.title("Community-Colored Reddit Author Interaction Graph (sample)")
+    pos = nx.spring_layout(G, seed=42)  # Consistent layout across runs
+    node_colors = [partition.get(node) for node in G.nodes()]
+
+    plt.figure(figsize=(18, 14))
+    nx.draw_networkx_nodes(G, pos,
+                           node_color=node_colors,
+                           cmap=plt.cm.Set3,
+                           node_size=60,
+                           alpha=0.8)
+    nx.draw_networkx_edges(G, pos, alpha=0.1, edge_color='red')
+
+    plt.title(" Full Reddit Community Graph by Louvain Detection", fontsize=15)
+    plt.axis("on")
+    plt.tight_layout()
+
+    plt.savefig("../shared_data/full_community_graph.png", dpi=300)
     plt.show()
 
 # Run if called directly

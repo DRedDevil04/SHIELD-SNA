@@ -1,104 +1,67 @@
 import pandas as pd
 import numpy as np
-import re
-import string
-from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
-import nltk
-from nltk.corpus import stopwords
-from collections import Counter
-from wordcloud import WordCloud
 import os
-import joblib
+from sklearn.metrics import confusion_matrix
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import SGDClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report, accuracy_score
 
-nltk.download('stopwords')
-stop_words = set(stopwords.words('english'))
+# Load your dataset
+df = pd.read_csv("../datasets/fetched_reddit_content_large.csv")  # Should have 'content' and '2_way_label' columns
 
-def preprocess(text):
-    text = text.lower()
-    text = re.sub(r"http\S+|www\S+|https\S+", '', text)
-    text = re.sub(r'@\w+|#\w+', '', text)
-    text = text.translate(str.maketrans('', '', string.punctuation))
-    text = re.sub(r'\s+', ' ', text).strip()
-    return text
+# Preprocessing
+X = df["content"]
+y = df["2_way_label"]
 
-def get_top_n_words(corpus, n=50):
-    all_words = ' '.join(corpus).split()
-    filtered_words = [word for word in all_words if word.lower() not in stop_words]
-    return Counter(filtered_words).most_common(n)
+# Split the data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
 
-def run_content_analysis():
-    # Load CSV
-    df = pd.read_csv("../datasets/fetched_reddit_content_large.csv")
+# Convert text to TF-IDF features
+vectorizer = TfidfVectorizer(stop_words='english', max_features=5000)
+X_train_tfidf = vectorizer.fit_transform(X_train)
+X_test_tfidf = vectorizer.transform(X_test)
 
-    # Combine title + content
-    df['text'] = df['clean_title'].fillna('') + " " + df['content'].fillna('')
+# Train a classifier - SGD with hinge loss (linear SVM)
+model = SGDClassifier(loss="hinge", penalty="l2", max_iter=1000, random_state=42)
+model.fit(X_train_tfidf, y_train)
 
-    # Filter out rows with missing labels
-    df = df[df['2_way_label'].notna()]
+# Predict and evaluate
+y_pred = model.predict(X_test_tfidf)
 
-    # Clean text
-    df['clean_text'] = df['text'].apply(preprocess)
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print(classification_report(y_test, y_pred))
 
-    # Split data
-    X_train, X_test, y_train, y_test = train_test_split(
-        df['clean_text'], df['2_way_label'], test_size=0.2, random_state=42)
+# Confusion matrix
+cm = confusion_matrix(y_test, y_pred)
+sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.title("Confusion Matrix - Hoax Detection")
+plt.show()
 
-    # TF-IDF vectorizer
-    vectorizer = TfidfVectorizer(
-        max_features=5000,
-        stop_words='english',
-        min_df=3,
-        ngram_range=(1, 2)
-    )
-    X_train_tfidf = vectorizer.fit_transform(X_train)
-    X_test_tfidf = vectorizer.transform(X_test)
+# Print top words for each class based on model coefficients
+feature_names = vectorizer.get_feature_names_out()
+coefs = model.coef_[0]
+top_n = 20
 
-    # Train classifier
-    model = LogisticRegression(class_weight='balanced')
-    model.fit(X_train_tfidf, y_train)
+# Top N positive weights (associated with label 1 = hoax)
+top_hoax_indices = np.argsort(coefs)[-top_n:]
+print("\nTop words predicting HOAX:")
+for i in reversed(top_hoax_indices):
+    print(f"{feature_names[i]}: {coefs[i]:.4f}")
 
-    # Predict and evaluate
-    y_pred = model.predict(X_test_tfidf)
-    print(classification_report(y_test, y_pred))
+# Save top hoax words to a shared file
+os.makedirs("../shared_data", exist_ok=True)
+top_hoax_words = [(feature_names[i], coefs[i]) for i in reversed(top_hoax_indices)]
+with open("../shared_data/top_hoax_keywords.txt", "w") as f:
+    for word, count in top_hoax_words:
+        f.write(f"{word}\n")
 
-    # Confusion matrix
-    cm = confusion_matrix(y_test, y_pred)
-    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
-    plt.xlabel("Predicted")
-    plt.ylabel("Actual")
-    plt.title("Confusion Matrix - Hoax Detection")
-    plt.show()
-
-    # Top hoax keywords
-    hoax_text = df[df['2_way_label'] == 1]['clean_text']
-    top_hoax_words = get_top_n_words(hoax_text)
-    print("Top hoax keywords:", top_hoax_words[:50])
-
-    # Save top hoax words to a shared file
-    os.makedirs("../shared_data", exist_ok=True)
-    with open("../shared_data/top_hoax_keywords.txt", "w") as f:
-        for word, count in top_hoax_words:
-            f.write(f"{word}\n")
-
-    # WordCloud
-    wordcloud = WordCloud(width=800, height=400, background_color='white').generate(' '.join(hoax_text))
-    plt.figure(figsize=(10, 5))
-    plt.imshow(wordcloud, interpolation="bilinear")
-    plt.axis("off")
-    plt.title("WordCloud - Hoax Posts")
-    plt.show()
-
-    # Save model and vectorizer
-    os.makedirs("../models", exist_ok=True)
-    joblib.dump(model, "../models/hoax_model.pkl")
-    joblib.dump(vectorizer, "../models/vectorizer.pkl")
-    print("✅ Model and vectorizer saved to ../models/")
-
-# Only run when this file is executed directly
-if __name__ == "__main__":
-    run_content_analysis()
+# Top N negative weights (associated with label 0 = real)
+top_real_indices = np.argsort(coefs)[:top_n]
+print("\nTop words predicting REAL:")
+for i in top_real_indices:
+    print(f"{feature_names[i]}: {coefs[i]:.4f}")

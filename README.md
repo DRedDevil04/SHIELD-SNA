@@ -1,46 +1,38 @@
-# S.H.I.E.L.D. – Social Hoax Identification & Event Linkage Dashboard
+# **S.H.I.E.L.D. – Social Hoax Identification & Event Linkage Dashboard**
 
 ## 📌 Overview
-**S.H.I.E.L.D.** (*Social Hoax Identification & Event Linkage Dashboard*) is a **standalone system** designed to extract, analyze, and visualize social media data related to **hoax call campaigns**. The system integrates **multi-platform social media data**, applies **NLP-based content analysis**, maps user coordination, and performs **threat assessment** based on hoax-related communications.
+**S.H.I.E.L.D.** (*Social Hoax Identification & Event Linkage Dashboard*) is a **standalone system** designed to automate the detection, analysis, and visualization of social media data related to **hoax call campaigns**. The system uses a combination of **network analysis**, **content analysis**, and **temporal correlation** to map hoax-related communication, assess threats, and visualize the spread of hoaxes on social media platforms like **Reddit**.
 
 ## 🎯 Features
-✅ **Multi-platform Data Collection** – Extracts data from Twitter, Reddit, Facebook, and Instagram using APIs and scraping tools.  
-✅ **Content Analysis Module** – Identifies hoax-related posts using **NLP, machine learning**, and **fact-checking APIs**.  
-✅ **User Network Mapping** – Detects coordinated efforts in spreading hoaxes.  
-✅ **Temporal Correlation Analysis** – Links social media hoax posts with **real-world hoax call events**.  
-✅ **Sentiment & Threat Assessment** – Determines the **impact and seriousness** of detected hoax messages.  
-✅ **Social Network Visualization** – Graphical representation of **how hoax content spreads**.  
-✅ **Validation Report** – Provides **case studies** based on real-world incidents.  
+✅ **Multi-platform Data Collection** – Extracts data from Reddit using **Pushshift.io API** and the **PRAW library**.  
+✅ **Content Analysis Module** – Identifies hoax-related posts using **NLP-based techniques** and **machine learning** algorithms.  
+✅ **User Network Mapping** – Detects coordinated efforts in spreading hoaxes using **network analysis** techniques.  
+✅ **Temporal Correlation Analysis** – Links hoax-related posts to **real-world hoax call events** over time.  
+✅ **Sentiment & Threat Assessment** – Analyzes the sentiment of posts and assesses their potential real-world impact.  
+✅ **Social Network Visualization** – Graphical representation of **how hoax content spreads** across users.  
+✅ **Validation Report** – Provides case studies and insights into real-world hoax incidents.  
 
 ## 🛠️ Tech Stack & Dependencies
 ### **Programming Language:**
 - **Python 3.9+** – Core development language
 
 ### **Data Collection Tools:**
-- **PRAW** – Reddit API Wrapper
-- **Tweepy** – Twitter API Client
-- **Pushshift.io API** – Archived Reddit Data Access
-- **Facebook-Scraper** – Extracting public Facebook data
-- **Instaloader** – Accessing public Instagram posts
+- **Pushshift.io API** – Extracts Reddit data
+- **PRAW** – Reddit API Wrapper for live data collection
 
 ### **Text Processing & NLP:**
 - **NLTK / SpaCy** – Tokenization, lemmatization, and Named Entity Recognition (NER)
 - **TextBlob / VADER** – Sentiment analysis
-- **Gensim** – Topic modeling and document similarity
-- **Scikit-learn** – Machine learning-based classification
+- **Scikit-learn** – Machine learning-based classification and analysis
 
 ### **Network & Visualization Tools:**
 - **NetworkX** – Graph-based analysis of user interactions
-- **pyvis** – Interactive network visualizations
-- **Matplotlib / Seaborn / Plotly** – Data visualization
+- **Plotly** – Interactive network visualizations
+- **Matplotlib / Seaborn** – Data visualization
 - **Gephi** – Standalone network visualization tool
 
 ### **Datasets Used:**
-- **FakeNewsNet** – Twitter-based fake news dataset
-- **PHEME** – Rumor and non-rumor Twitter conversations
-- **Pushshift.io Reddit Dumps** – Archived Reddit data
-- **Harvard Dataverse** – Social media datasets for research
-- **CrisisLex** – Social media crisis-related datasets
+- **Pushshift.io Reddit Dumps** – Archived Reddit data for hoax analysis
 
 ## 🔧 Installation & Setup
 ### **1️⃣ Clone the Repository:**
@@ -48,62 +40,57 @@
 git clone https://github.com/yourusername/SHIELD.git
 cd SHIELD
 ```
-
 ### **2️⃣ Install Dependencies:**
 ```bash
 pip install -r requirements.txt
 ```
 
-### **3️⃣ Set Up API Keys (Optional for Live Data):**
-- **Twitter API:** Get API keys from [Twitter Developer Portal](https://developer.twitter.com/)
-- **Reddit API:** Create an app at [Reddit Developer Portal](https://www.reddit.com/prefs/apps)
-- **Facebook API:** Requires scraping tools
-- **Instagram API:** Use Instaloader for public posts
-
-Create a `.env` file and add:
+### ** 3️⃣ Set Up API Keys**
 ```bash
-TWITTER_API_KEY=your_api_key
-TWITTER_API_SECRET=your_api_secret
+Reddit API: Create an app at Reddit Developer Portal
+
+Create a .env file and add:
 REDDIT_CLIENT_ID=your_client_id
 REDDIT_CLIENT_SECRET=your_client_secret
 ```
 
-### **4️⃣ Run the System:**
+### ** 4️⃣ Run the System:**
 ```bash
-python main.py
+python3 app.py
 ```
 
-## 📌 Workflow
-1️⃣ **Data Collection** – Extracts hoax-related posts from social media.  
-2️⃣ **Content Analysis** – Identifies hoax indicators, keywords, and misinformation.  
-3️⃣ **User Network Mapping** – Detects coordination patterns in spreading hoaxes.  
-4️⃣ **Temporal Analysis** – Links social posts to hoax call events.  
-5️⃣ **Threat & Sentiment Analysis** – Assesses potential risks and public panic.  
-6️⃣ **Visualization & Reporting** – Generates graphs, network maps, and case studies.  
+📌 Workflow
+1️⃣ Data Collection – Extract hoax-related posts from Reddit using Pushshift.io and PRAW.
+2️⃣ Content Analysis – Identifies hoax indicators and misinformation using NLP techniques and machine learning models.
+3️⃣ User Network Mapping – Visualizes coordinated efforts of users spreading hoaxes through network analysis.
+4️⃣ Temporal Analysis – Links social media posts to real-world hoax events using timestamps and event data.
+5️⃣ Sentiment & Threat Analysis – Determines the impact and seriousness of hoax messages.
+6️⃣ Visualization & Reporting – Generates network graphs, temporal correlation plots, and threat assessment reports.
 
-## 📊 Expected Output
-📌 **Hoax Probability Score** – Classifies posts as **Hoax or Not** based on ML analysis.  
-📌 **User Coordination Graph** – Visualizes connections between users spreading hoaxes.  
-📌 **Sentiment Analysis Chart** – Shows positive, neutral, and negative trends in posts.  
-📌 **Temporal Correlation Plot** – Matches hoax posts with call event timelines.  
-📌 **Threat Assessment Report** – Determines if a hoax could lead to real-world harm.  
+📊 Expected Output
+📌 Hoax Probability Score – Classifies posts as Hoax or Not based on machine learning analysis.
+📌 User Coordination Graph – Visualizes connections between users spreading hoaxes using network graphs.
+📌 Sentiment Analysis Chart – Displays trends of positive, neutral, and negative sentiments in posts.
+📌 Temporal Correlation Plot – Links hoax posts with real-world event timelines.
+📌 Threat Assessment Report – Evaluates if a hoax could lead to real-world harm or disruptions.
 
-## 🏆 Use Cases
-- **Law enforcement agencies** – Detect and mitigate hoax call campaigns.  
-- **Social media platforms** – Flag and take down false alarms.  
-- **Crisis management teams** – Identify and respond to fake emergency alerts.  
-- **Journalists & Fact-checkers** – Analyze misinformation trends.  
+🏆 Use Cases
+Law enforcement agencies – Detect and mitigate hoax call campaigns and social media misinformation.
 
-## 📄 License
-This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.
+Social media platforms – Flag and take down hoax-related content.
 
-## 🤝 Contributors
-- **[Your Name]** – Lead Developer & Researcher
-- **[Contributor 2]** – NLP & ML Engineer
-- **[Contributor 3]** – Data Visualization Specialist
+Crisis management teams – Quickly identify and respond to false alarm incidents.
 
-## 📬 Contact
-For questions, feedback, or collaborations, reach out at **your.email@example.com** or create an issue on GitHub.
+Journalists & Fact-checkers – Analyze trends in social media misinformation and hoaxes.
 
----
-🚀 **S.H.I.E.L.D. – Protecting Against Social Hoaxes & Disinformation** 🚀
+📄 License
+This project is licensed under the MIT License – see the LICENSE file for details.
+
+🤝 Contributors
+DEVAM DESAI
+NITU SHERAWAT
+SAMAR BORKAR
+
+📬 Contact
+For questions, feedback, or collaborations, reach out at example.com or create an issue on GitHub.
+
