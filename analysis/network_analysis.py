@@ -3,11 +3,9 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import community as community_louvain
 import os
+import plotly.graph_objs as go
 
-def run_network_analysis():
-    # Load dataset
-    df = pd.read_csv("../datasets/fetched_network_data.csv", sep=',')
-    print(df['subreddit'].value_counts())
+def analyse_network(df):
     df = df.dropna(subset=['author', 'id'])
 
     # Map post ID to author
@@ -24,16 +22,12 @@ def run_network_analysis():
             if post_author and post_author != commenter:
                 G.add_edge(commenter, post_author, relation='commented_on')
 
-    print(f"Graph: {G.number_of_nodes()} nodes and {G.number_of_edges()} edges")
-
     # Convert to undirected for community detection
     G_undirected = G.to_undirected()
 
     # --- 🔍 COMMUNITY DETECTION ---
     partition = community_louvain.best_partition(G_undirected)
     nx.set_node_attributes(G, partition, "community")
-    num_communities = len(set(partition.values()))
-    print(f"🧩 Detected {num_communities} communities")
 
     # --- 📊 CENTRALITY MEASURES ---
     degree_centrality = nx.degree_centrality(G)
@@ -42,24 +36,11 @@ def run_network_analysis():
     nx.set_node_attributes(G, degree_centrality, "degree_centrality")
     nx.set_node_attributes(G, betweenness_centrality, "betweenness_centrality")
 
-    top_degree = sorted(degree_centrality.items(), key=lambda x: x[1], reverse=True)[:5]
-    top_betweenness = sorted(betweenness_centrality.items(), key=lambda x: x[1], reverse=True)[:5]
-
-    print("\n🔝 Top 5 by Degree Centrality:")
-    for user, score in top_degree:
-        print(f"{user}: {score:.4f}")
-
-    print("\n🔝 Top 5 by Betweenness Centrality:")
-    for user, score in top_betweenness:
-        print(f"{user}: {score:.4f}")
-
-    # --- Save outputs ---
+    # Save data
     os.makedirs("../shared_data", exist_ok=True)
 
-    # Save graph
     nx.write_gml(G, "../shared_data/network.gml")
 
-    # Save centrality scores
     centrality_df = pd.DataFrame({
         "user": list(degree_centrality.keys()),
         "degree_centrality": list(degree_centrality.values()),
@@ -68,33 +49,66 @@ def run_network_analysis():
     })
     centrality_df.to_csv("../shared_data/centrality_scores.csv", index=False)
 
-    # Save community list separately
     community_df = pd.DataFrame(partition.items(), columns=["user", "community"])
     community_df.to_csv("../shared_data/communities.csv", index=False)
 
-    print("✅ Network graph and analysis saved to ../shared_data/")
+    # --- 🌐 Network Graph (simplified for Dash) ---
+    pos = nx.spring_layout(G, seed=42)
+    edge_x = []
+    edge_y = []
 
-    # --- 🌐 Full Graph Community Visualization ---
-    print("📊 Generating full community graph...")
+    for edge in G.edges():
+        x0, y0 = pos[edge[0]]
+        x1, y1 = pos[edge[1]]
+        edge_x += [x0, x1, None]
+        edge_y += [y0, y1, None]
 
-    pos = nx.spring_layout(G, seed=42)  # Consistent layout across runs
-    node_colors = [partition.get(node) for node in G.nodes()]
+    edge_trace = go.Scatter(
+        x=edge_x, y=edge_y,
+        line=dict(width=0.5, color='#888'),
+        hoverinfo='none',
+        mode='lines')
 
-    plt.figure(figsize=(18, 14))
-    nx.draw_networkx_nodes(G, pos,
-                           node_color=node_colors,
-                           cmap=plt.cm.Set3,
-                           node_size=60,
-                           alpha=0.8)
-    nx.draw_networkx_edges(G, pos, alpha=0.1, edge_color='red')
+    node_x = []
+    node_y = []
+    node_color = []
+    node_text = []
 
-    plt.title(" Full Reddit Community Graph by Louvain Detection", fontsize=15)
-    plt.axis("on")
-    plt.tight_layout()
+    for node in G.nodes():
+        x, y = pos[node]
+        node_x.append(x)
+        node_y.append(y)
+        node_color.append(partition.get(node))
+        node_text.append(f"{node}<br>Degree: {degree_centrality.get(node):.4f}<br>Betweenness: {betweenness_centrality.get(node):.4f}")
 
-    plt.savefig("../shared_data/full_community_graph.png", dpi=300)
-    plt.show()
+    node_trace = go.Scatter(
+        x=node_x, y=node_y,
+        mode='markers',
+        hoverinfo='text',
+        text=node_text,
+        marker=dict(
+            showscale=True,
+            colorscale='Viridis',
+            color=node_color,
+            size=10,
+            colorbar=dict(
+                thickness=15,
+                title='Community',
+                xanchor='left',
+                titleside='right'
+            )
+        )
+    )
 
-# Run if called directly
-if __name__ == "__main__":
-    run_network_analysis()
+    fig = go.Figure(data=[edge_trace, node_trace],
+                    layout=go.Layout(
+                        title='Reddit Author Network with Community Detection',
+                        titlefont_size=16,
+                        showlegend=False,
+                        hovermode='closest',
+                        margin=dict(b=20, l=5, r=5, t=40),
+                        xaxis=dict(showgrid=False, zeroline=False),
+                        yaxis=dict(showgrid=False, zeroline=False)
+                    ))
+
+    return fig

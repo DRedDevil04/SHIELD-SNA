@@ -1,19 +1,21 @@
 import pandas as pd
 import dash
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc, html
 from dash.dependencies import Input, Output
-import plotly.graph_objects as go
 import plotly.express as px
 from dash.exceptions import PreventUpdate
 import base64
 import io
 import os
+import plotly.graph_objects as go
 
-# Import module functions
-from analysis import sentiment_analysis, content_analysis, network_analysis, temporal_analysis
+# Import analysis modules
+from analysis.content_analysis import analyse_content
+from analysis.network_analysis import analyse_network
+from analysis.sentiment_analysis import analyse_sentiment
+from analysis.temporal_analysis import analyse_temporal
 
-# Initialize app
+# Initialize Dash app
 app = dash.Dash(__name__)
 server = app.server
 
@@ -21,12 +23,20 @@ server = app.server
 app.layout = html.Div([
     html.H1("Hoax Campaign Dashboard", style={'textAlign': 'center'}),
 
-    # CSV Upload
-    dcc.Upload(
-        id='upload-data',
-        children=html.Button('Upload CSV'),
-        multiple=False
-    ),
+    html.Div([
+        html.Label("Choose dataset source:"),
+        dcc.RadioItems(
+            id='dataset-choice',
+            options=[
+                {'label': 'Use default dataset', 'value': 'default'},
+                {'label': 'Upload your own CSV', 'value': 'upload'}
+            ],
+            value='default',
+            labelStyle={'display': 'inline-block', 'marginRight': '20px'}
+        )
+    ]),
+
+    html.Div(id='upload-container'),
     html.Div(id='file-content'),
 
     dcc.Tabs([
@@ -35,7 +45,8 @@ app.layout = html.Div([
                 html.H3("Sentiment Distribution by Subreddit"),
                 dcc.Dropdown(id='subreddit-dropdown'),
                 dcc.Graph(id='sentiment-histogram'),
-                html.Div(id='summary-box', style={'marginTop': 20})
+                html.Div(id='summary-box', style={'marginTop': 20}),
+                html.Div(id='threat-info', style={'marginTop': 20})
             ])
         ]),
         dcc.Tab(label="Author Network", children=[
@@ -44,51 +55,116 @@ app.layout = html.Div([
         ]),
         dcc.Tab(label="Content Analysis", children=[
             html.Br(),
-            dcc.Graph(id='content-bar')
+            html.H4("Classification Report"),
+            html.Pre(id='classification-report'),
+            html.Img(id='confusion-matrix-img', style={'width': '500px', 'marginBottom': '20px'}),
+            html.H4("Top Hoax Words"),
+            html.Ul(id='top-hoax-words'),
+            html.H4("Top Real Words"),
+            html.Ul(id='top-real-words')
         ]),
         dcc.Tab(label="Temporal Analysis", children=[
             html.Br(),
-            dcc.Graph(id='temporal-analysis')
+            html.Img(id='temporal-plot-img', style={'width': '90%', 'marginBottom': '20px'}),
+            html.H4("Top Subreddits (Hoax)"),
+            html.Ul(id='top-subreddits')
         ])
     ])
 ])
 
-# --- CSV Upload Callback ---
+# Show upload button conditionally
+@app.callback(
+    Output('upload-container', 'children'),
+    Input('dataset-choice', 'value')
+)
+def toggle_upload_area(choice):
+    if choice == 'upload':
+        return dcc.Upload(
+            id='upload-data',
+            children=html.Button('Upload CSV'),
+            multiple=False
+        )
+    return html.Div()
+
+# Main callback
 @app.callback(
     Output('file-content', 'children'),
     Output('subreddit-dropdown', 'options'),
     Output('subreddit-dropdown', 'value'),
     Output('sentiment-histogram', 'figure'),
     Output('summary-box', 'children'),
+    Output('threat-info', 'children'),
     Output('network-graph', 'figure'),
-    Output('content-bar', 'figure'),
-    Output('temporal-analysis', 'figure'),
+    Output('classification-report', 'children'),
+    Output('confusion-matrix-img', 'src'),
+    Output('top-hoax-words', 'children'),
+    Output('top-real-words', 'children'),
+    Output('temporal-plot-img', 'src'),
+    Output('top-subreddits', 'children'),
+    Input('dataset-choice', 'value'),
     Input('upload-data', 'contents')
 )
-def upload_file(contents):
-    if contents is None:
-        raise PreventUpdate
+def load_data(choice, contents):
+    if choice == 'upload':
+        if contents is None:
+            raise PreventUpdate
+        content_type, content_string = contents.split(',')
+        decoded = base64.b64decode(content_string)
+        df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
+        status_msg = "Custom file uploaded successfully!"
+    else:
+        default_path = './datasets/fetched_reddit_content_large.csv'
+        if not os.path.exists(default_path):
+            return "Default dataset not found.", [], None, go.Figure(), "", "", go.Figure(), "", None, [], [], None, []
+        df = pd.read_csv(default_path)
+        status_msg = "Using default dataset."
 
-    content_type, content_string = contents.split(',')
-    decoded = base64.b64decode(content_string)
-    df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
+    # Run modules
+    sentiment = analyse_sentiment(df)
+    content = analyse_content(df)
+    # network_fig = analyse_network(df)
+    # temporal = analyse_temporal(df)
 
-    # Call the modules for processing
-    df = sentiment_analysis(df)  # Updated df with sentiment columns
-    network_fig = network_analysis(df)
-    content_fig = content_analysis(df, 'hoax')  # Default to 'hoax' label
-    temporal_fig = temporal_analysis(df)
+    # Subreddit dropdown
+    subreddit_options = [{'label': sub, 'value': sub} for sub in df['subreddit'].dropna().unique()]
+    default_subreddit = df['subreddit'].dropna().unique()[0]
 
-    # Update dropdown options dynamically based on subreddits in the dataset
-    subreddit_options = [{'label': sub, 'value': sub} for sub in df['subreddit'].unique()]
-    default_subreddit = df['subreddit'].unique()[0]
+    # Sentiment histogram and summary
+    fig, summary = update_sentiment_graph(sentiment["full_df"], default_subreddit)
 
-    # Sentiment Histogram update
-    fig, summary = update_sentiment_graph(df, default_subreddit)
+    # Threat info
+    threat_info = html.Div([
+        html.P(f"Threat keywords used: {', '.join(sentiment['threat_keywords'])}"),
+        html.P(f"Threat-flagged hoax posts: {sentiment['threat_hoax_count']}")
+    ])
 
-    return "File uploaded successfully!", subreddit_options, default_subreddit, fig, summary, network_fig, content_fig, temporal_fig
+    # Content analysis
+    top_hoax_words_list = [html.Li(word) for word in content["top_hoax_words"]]
+    top_real_words_list = [html.Li(word) for word in content["top_real_words"]]
 
+    # Temporal analysis
+    temporal_plot_src = f"data:image/png;base64,{temporal['base64_plot']}"
+    top_subreddits_list = [html.Li(sub) for sub in temporal['top_subreddits']]
 
+    confusion_img_src = f"data:image/png;base64,{content['confusion_matrix_base64']}"
+
+    return (
+        status_msg,
+        subreddit_options,
+        default_subreddit,
+        fig,
+        summary,
+        threat_info,
+        network_fig,
+        content["classification_report"],
+        confusion_img_src,
+        top_hoax_words_list,
+        top_real_words_list,
+        temporal_plot_src,
+        top_subreddits_list
+    )
+
+# Update sentiment graph
 def update_sentiment_graph(df, selected_subreddit):
     filtered_df = df[df['subreddit'] == selected_subreddit]
 
@@ -105,109 +181,6 @@ def update_sentiment_graph(df, selected_subreddit):
     sentiment_counts = filtered_df['sentiment_category'].value_counts().to_dict()
     summary = [html.P(f"{k.title()} posts: {v}") for k, v in sentiment_counts.items()]
     return fig, summary
-
-
-def network_analysis(df):
-    # Assuming your existing network analysis code
-    G = network_analysis(df)  # function to create graph
-    
-    # Create a Plotly figure for network visualization
-    pos = nx.spring_layout(G, seed=42)
-    edge_x = []
-    edge_y = []
-    for edge in G.edges():
-        x0, y0 = pos[edge[0]]
-        x1, y1 = pos[edge[1]]
-        edge_x.append(x0)
-        edge_x.append(x1)
-        edge_y.append(y0)
-        edge_y.append(y1)
-    
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=edge_x, y=edge_y, mode='lines', line=dict(width=0.5, color='black')))
-    
-    node_x = []
-    node_y = []
-    for node in G.nodes():
-        x, y = pos[node]
-        node_x.append(x)
-        node_y.append(y)
-    
-    fig.add_trace(go.Scatter(x=node_x, y=node_y, mode='markers', marker=dict(size=10, color='blue')))
-    
-    fig.update_layout(title="Reddit Author Network")
-    return fig
-
-
-def sentiment_analysis(df):
-    # Perform the sentiment analysis steps as you already have
-    from nltk.sentiment.vader import SentimentIntensityAnalyzer
-    from textblob import TextBlob
-    import nltk
-
-    nltk.download('vader_lexicon')
-
-    sid = SentimentIntensityAnalyzer()
-    df['clean_title'] = df['clean_title'].fillna("")
-
-    # Perform sentiment analysis
-    df['vader_sentiment_raw'] = df['clean_title'].apply(lambda x: sid.polarity_scores(x)['compound'])
-    df['vader_sentiment'] = df['vader_sentiment_raw'].apply(lambda x: round((x + 1) * 5, 2))
-    df['textblob_polarity'] = df['clean_title'].apply(lambda x: TextBlob(x).sentiment.polarity)
-
-    def label_sentiment(score):
-        if score >= 7:
-            return "positive"
-        elif score <= 3:
-            return "negative"
-        else:
-            return "neutral"
-
-    df['sentiment_category'] = df['vader_sentiment'].apply(label_sentiment)
-    return df
-
-
-def content_analysis(df, label):
-    # Placeholder content analysis (replace with your actual analysis)
-    df_filtered = df[df['2_way_label'] == 1] if label == 'hoax' else df
-    content_fig = go.Figure(data=[go.Bar(
-        x=df_filtered['subreddit'].value_counts().index,
-        y=df_filtered['subreddit'].value_counts().values,
-        name='Hoax Posts'
-    )])
-
-    content_fig.update_layout(title=f"Content Analysis for {label} Posts")
-    return content_fig
-
-
-def temporal_analysis(df):
-    # Plot temporal trends for hoax posts
-    df['created_utc'] = pd.to_datetime(df['created_utc'], unit='s', errors='coerce')
-    df = df.dropna(subset=['created_utc'])
-
-    # Filter hoax posts
-    hoax_df = df[df['2_way_label'] == 1]
-
-    # Identify top N subreddits by hoax post count
-    top_subs = hoax_df['subreddit'].value_counts().head(5).index
-
-    # Convert timestamp to month
-    hoax_df['month'] = hoax_df['created_utc'].dt.to_period('M').astype(str)
-
-    # Filter to only top N subreddits
-    hoax_df = hoax_df[hoax_df['subreddit'].isin(top_subs)]
-
-    # Group by subreddit and month
-    grouped = hoax_df.groupby(['subreddit', 'month']).size().unstack(fill_value=0)
-
-    # Plot
-    fig = go.Figure()
-    for subreddit in grouped.index:
-        fig.add_trace(go.Scatter(x=grouped.columns, y=grouped.loc[subreddit], mode='lines+markers', name=subreddit))
-
-    fig.update_layout(title="Hoax Post Trends Over Time by Top Subreddits")
-    return fig
-
 
 # Run app
 if __name__ == '__main__':
