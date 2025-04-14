@@ -1,4 +1,5 @@
 # 🛡 S.H.I.E.L.D. – Social Hoax Identification & Event Linkage Dashboard
+Deployed at : https://darthtellectus.pythonanywhere.com/
 
 ## 📌 Overview
 **S.H.I.E.L.D.** (*Social Hoax Identification & Event Linkage Dashboard*) is a standalone system to detect, analyze, and visualize **hoax call campaigns** on Reddit using **NLP**, **network analysis**, **sentiment evaluation**, and **temporal correlation** techniques.
